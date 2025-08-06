@@ -6,7 +6,7 @@ from sklearn.mixture import GaussianMixture
 
 class Thresholder :
 
-    def __init__(self, hypothesis : str, percentage : float = None, n_components : int = 2,distributions  = ['GMM','lognormal','gamma','genextreme','beta']):
+    def __init__(self, hypothesis : str, risk : float = None, n_components : int = 2,distributions  = ['GMM','lognormal','gamma','genextreme','beta']):
         """ Distribution based thresholder
             hypothesis : ['Anderson','Kstest'] -> The hypothesis testing method
             percentage : float -> the risk parameter, between 0 and 1. Lower percentage means more False Negative and less False Positive 
@@ -14,7 +14,7 @@ class Thresholder :
             distributions : list['GMM','lognormal','gamma','genextreme','beta'] -> the list of all tested distributions"""
         
         self.hypothesis = hypothesis
-        self.percentage = percentage
+        self.risk = risk
         self.n_components = n_components
         self.distributions = distributions
         self.fit_labels_ = None
@@ -57,25 +57,25 @@ class Thresholder :
             return self.model_.sf(x)
 
 
-    def predict(self,score,percentage = None) -> tuple:
+    def predict(self,score,risk = None) -> tuple:
         """ Predicts the label of the score based on the fitted distribution
             score : float or array-like -> The anomaly score to predict label from
-            percentage (optional if it has already been entered in the object initialisation): float -> the risk parameter, between 0 and 1. Lower percentage means more False Negative and less False Positive 
+            risk (optional if it has already been specified in the object initialisation): float -> the risk parameter, between 0 and 1. Lower percentage means more False Negative and less False Positive 
             
             Output : dict ->
                 - label : array-like -> labels of the input score. 0 is an inlier and 1 is an outlier
                 - sf : array-like -> survival function of the input score, based on the fitted distribution
             """   
-        if percentage :
-            self.percentage = percentage
-        elif not self.percentage : 
+        if risk :
+            self.risk = risk
+        elif not self.risk : 
             raise ValueError('no risk parameter has been entered')
-        if not self.model :
+        if not self.model_ :
             raise Exception('The thresholder has not been fitted')
         
         score = np.asarray(score)
         sf = np.array([self.survival(s) for s in score]).reshape(-1)
-        return {'label':sf<self.percentage,'sf':sf}
+        return {'label':sf<self.risk,'sf':sf}
     
 
 
