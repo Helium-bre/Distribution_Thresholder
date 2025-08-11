@@ -22,7 +22,7 @@ The <b>Thresholder</b> class contains two main functions : ``` fit ``` and ``` p
 - predict : predicts the labels and the survival density of the input scores, based on the fitted distribution
     - input : 
         -  score: 1D-array of anomaly scores
-        - percentage: risk parameter, between 0 and 1 
+        - risk: risk parameter, between 0 and 1. A higher risk will have more FP and less FN
     - output : dictionary containing the following elements :
         - label: predicted labels for the input score
         - sf: predicted survival density of the input score
@@ -46,5 +46,5 @@ testing_score = np.random.lognormal(mean=0, sigma=1, size=100)
 
 thesh = Threshold('Anderson')
 thresh.fit(training_score)
-labels = thresh.predict(testing_score,parameter = 0.05)['label']
+labels = thresh.predict(testing_score,risk = 0.05)['label']
 ```
